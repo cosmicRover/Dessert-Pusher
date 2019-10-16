@@ -18,6 +18,7 @@ package com.example.android.dessertpusher
 
 import android.content.ActivityNotFoundException
 import android.os.Bundle
+import android.os.PersistableBundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -36,6 +37,7 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
 
     // Contains all the views
     private lateinit var binding: ActivityMainBinding
+    private lateinit var timer:DessertTimer
 
     /** Dessert Data **/
 
@@ -70,6 +72,17 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        timer = DessertTimer(this.lifecycle)
+
+        /**
+         * get the values that were saved on the savedInstanceState
+         */
+        if (savedInstanceState != null){
+            revenue = savedInstanceState.getInt("rev")
+            dessertsSold = savedInstanceState.getInt("sold")
+            timer.secondsCount = savedInstanceState.getInt("timer")
+        }
+
         // Use Data Binding to get reference to the views
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
@@ -96,6 +109,7 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
     override fun onStart() {
         super.onStart()
         Timber.i("onStart() gets called!")
+//        timer.startTimer()
     }
 
     /**
@@ -104,6 +118,7 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
     override fun onStop(){
         super.onStop()
         Timber.i("onStop() gets called!")
+//        timer.stopTimer()
     }
 
     /**
@@ -131,7 +146,17 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
     }
 
 
-
+    /**
+     * gets called when onStop() gets called
+     * we will put the revenue state here
+     */
+    override fun onSaveInstanceState(outState: Bundle?) {
+        super.onSaveInstanceState(outState)
+        outState?.putInt("rev", revenue)
+        outState?.putInt("sold", dessertsSold)
+        outState?.putInt("timer", timer.secondsCount)
+        Timber.i("onSaveInstance gets called")
+    }
 
     /**
      * Updates the score when the dessert is clicked. Possibly shows a new dessert.
